@@ -13,8 +13,9 @@ def read_grammar_from_file(file_name):
             rule = f.readline().strip()
             left, right = rule.split('->')
             left = left.strip()
-            if left in grammar:
-                grammar[left].add(tuple(right.split()))
+            if left in grammar.keys():
+                for p in right.split('|'):
+                    grammar[left].add(tuple(p.strip().split()))
             else: grammar[left] = {tuple(p.strip().split()) for p in right.split('|')}
 
     return grammar, start
@@ -65,9 +66,7 @@ def remove_useless_sysbols(grammar, start):
                 if all([(is_terminal(c)) or (c in old_v) for c in value]):
                     new_v.add(left)
 
-    print('BD1 - new_v: ', new_v)
     grammar = keep_rule(grammar, new_v)
-    print(to_string(grammar, start))
 
     # Bổ đề 2
     old_v = set()
@@ -81,10 +80,7 @@ def remove_useless_sysbols(grammar, start):
                         if not is_terminal(c):
                             new_v.add(c)
 
-    print('BD2 - new_v: ', new_v)
     grammar = keep_rule(grammar, new_v)
-    print(to_string(grammar, start))
-
     return grammar
 
 def generate_rule_with_nullable(value, nullable):
