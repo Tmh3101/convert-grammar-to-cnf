@@ -17,13 +17,15 @@ def read_grammar_from_file(file_name):
 
     return grammar, start
 
-def print_grammar(grammar, start=None):
+def to_string(grammar, start=None):
+    string = ''
     # In ra chuỗi bắt đầu
     if start is not None:
-        print("S =", start)
+        string += f'S = {start}\n'
     # In ra các luật sinh
     for left, right in grammar.items():
-        print(left, "->", " | ".join([" ".join(p) for p in right]))
+        string += f'{left} -> {" | ".join([" ".join(p) for p in right])}\n'
+    return string
 
 def is_epsilon(c):
     return c[0] == 'epsilon' or c == 'epsilon'
@@ -158,22 +160,6 @@ def create_new_symbol(c):
 
 # Chuyển đổi văn phạm sang dạng chuẩn Chomsky (CNF - Chomsky Normal Form)
 def convert_to_cnf(grammar, start):
-    # Bước 1: Loại bỏ các ký hiệu vô ích
-    grammar = remove_useless_sysbols(grammar, start)
-    print('-----Remove useless symbols-----')
-    print_grammar(grammar, start)
-
-    # Bước 2: Loại bỏ các luật sinh epsilon
-    grammar = remove_epsilon_rule(grammar, start)
-    print('-----Remove epsilon rule-----')
-    print_grammar(grammar, start)
-
-    # Bước 3: Loại bỏ các luật sinh đơn vị
-    grammar = remove_unit_rule(grammar, start)
-    print('-----Remove unit rule-----')
-    print_grammar(grammar, start)
-
-    # Bước 4: Chuyển đổi các luật sinh có nhiều hơn 2 biến thành các luật sinh có 2 biến
     new_grammar = {}
     nums_new_symbol = 0
     for left, right in grammar.items():
@@ -206,11 +192,25 @@ def convert_to_cnf(grammar, start):
 
     return new_grammar
 
+def run_with_cli():
+    grammar, start = read_grammar_from_file('input_grammar.txt')
+    print('-----Input Grammar-----')
+    print(to_string(grammar, start))
 
-grammar, start = read_grammar_from_file('input_grammar.txt')
-print('-----Input Grammar-----')
-print_grammar(grammar, start)
+    grammar = remove_useless_sysbols(grammar, start)
+    print('-----Remove Useless Sysbols-----')
+    print(to_string(grammar, start))
 
-cnf = convert_to_cnf(grammar, start)
-print('-----CNF Grammar-----')
-print_grammar(cnf)
+    grammar = remove_epsilon_rule(grammar, start)
+    print('-----Remove Epsilon Rule-----')
+    print(to_string(grammar, start))
+
+    grammar = remove_unit_rule(grammar, start)
+    print('-----Remove Unit Rule-----')
+    print(to_string(grammar, start))
+
+    grammar = convert_to_cnf(grammar, start)
+    print('-----Convert to CNF-----')
+    print(to_string(grammar, start))
+
+# run_with_cli()
