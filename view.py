@@ -16,7 +16,7 @@ class GrammarProcessorGUI:
     def __init__(self, root):
         self.root = root
         self.root.title("Grammar Processor")
-        self.root.geometry("1200x600")
+        self.root.geometry("1000x600")
         
         # Variables
         self.current_file = None
@@ -46,7 +46,7 @@ class GrammarProcessorGUI:
         
         # Create left and right frames
         left_frame = ttk.Frame(content_frame)
-        left_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=5)
+        left_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=False, padx=5)
         
         right_frame = ttk.Frame(content_frame)
         right_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=5)
@@ -104,37 +104,37 @@ class GrammarProcessorGUI:
             self.step_output.delete(1.0, tk.END)
             
             # Read grammar
-            start_time = time.time()
+            start_time = time.perf_counter()
             self.grammar, self.start_symbol = read_grammar_from_file(self.current_file)
-            read_time = time.time() - start_time
-            self.step_output.insert(tk.END, f"Đọc văn phạm - {read_time:.6f} giây\n\n")
+            read_time = time.perf_counter() - start_time
+            self.step_output.insert(tk.END, f"Đọc văn phạm - {read_time * 1000:.6f} mili giây\n\n")
             
             # Remove useless symbols
-            start_time = time.time()
+            start_time = time.perf_counter()
             self.grammar = remove_useless_sysbols(self.grammar, self.start_symbol)
-            useless_time = time.time() - start_time
-            self.step_output.insert(tk.END, f"Loại bỏ các ký hiệu vô ích - {useless_time:.6f} giây:\n")
+            useless_time = time.perf_counter() - start_time
+            self.step_output.insert(tk.END, f"Loại bỏ các ký hiệu vô ích - {useless_time * 1000:.6f} mili giây:\n")
             self.step_output.insert(tk.END, to_string(self.grammar, self.start_symbol) + "\n\n")
             
             # Remove epsilon rules
-            start_time = time.time()
+            start_time = time.perf_counter()
             self.grammar = remove_epsilon_rule(self.grammar, self.start_symbol)
-            epsilon_time = time.time() - start_time
-            self.step_output.insert(tk.END, f"Loại bỏ luật sinh epsilon - {epsilon_time:.6f} giây:\n")
+            epsilon_time = time.perf_counter() - start_time
+            self.step_output.insert(tk.END, f"Loại bỏ luật sinh epsilon - {epsilon_time * 1000:.6f} mili giây:\n")
             self.step_output.insert(tk.END, to_string(self.grammar, self.start_symbol) + "\n\n")
             
             # Remove unit rules
-            start_time = time.time()
+            start_time = time.perf_counter()
             self.grammar = remove_unit_rule(self.grammar, self.start_symbol)
-            unit_time = time.time() - start_time
-            self.step_output.insert(tk.END, f"Loại bỏ luật sinh đơn vị - {unit_time:.6f} giây:\n")
+            unit_time = time.perf_counter() - start_time
+            self.step_output.insert(tk.END, f"Loại bỏ luật sinh đơn vị - {unit_time * 1000:.6f} mili giây:\n")
             self.step_output.insert(tk.END, to_string(self.grammar, self.start_symbol) + "\n\n")
             
             # Convert to CNF
-            start_time = time.time()
+            start_time = time.perf_counter()
             cnf_grammar = convert_to_cnf(self.grammar, self.start_symbol)
-            cnf_time = time.time() - start_time
-            self.step_output.insert(tk.END, f"Chuyển sanh dạng chuẩn Chomsky (CNF) - {cnf_time:.6f} seconds:\n")
+            cnf_time = time.perf_counter() - start_time
+            self.step_output.insert(tk.END, f"Chuyển sang dạng chuẩn Chomsky (CNF) - {cnf_time * 1000:.6f} mili giây:\n")
             self.step_output.insert(tk.END, to_string(cnf_grammar, self.start_symbol))
             
             # Display final result

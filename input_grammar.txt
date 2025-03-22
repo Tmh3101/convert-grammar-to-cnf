@@ -1,22 +1,14 @@
-20
+12
 S
-S -> A B C D E | F G H I J | K L M N O
-A -> a | B C D | epsilon
-B -> b | C D E | epsilon
-C -> c | D E F
-D -> d | E F G
-E -> e | F G H
-F -> f | G H I
-G -> g | H I J
-H -> h | I J K
-I -> i | J K L
-J -> j | K L M
-K -> k | L M N
-L -> l | M N O
-M -> m | N O P
-N -> n | O P Q
-O -> o | P Q R
-P -> p | Q R S
-Q -> q | R S T
-R -> r | S T U
-S -> s | T U V
+S -> A B C D | E F G
+A -> a | B C | epsilon
+B -> b | C D | epsilon
+C -> c | D E
+D -> d | E F
+E -> e | F G
+F -> f | G H
+G -> g | H I
+H -> h | I J
+I -> i | J K
+J -> j | K L
+K -> k | L M

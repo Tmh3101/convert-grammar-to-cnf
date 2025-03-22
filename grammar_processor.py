@@ -36,13 +36,16 @@ def is_epsilon(c):
 def is_terminal(c):
     return is_epsilon(c) or (97 <= ord(c) <= 122)
 
+# Giữ lại các luật sinh có biến trong new_v
 def keep_rule(grammar, new_v):
     new_grammar = copy.deepcopy(grammar)
     for left, right in grammar.items():
+        # Nếu vế trái không thuộc new_v thì xóa các luật sinh sinh từ vế trái
         if left not in new_v:
             del new_grammar[left]
         else:
             for value in right:
+                # Nếu vế phải không các chứa biến trong new_v thì xóa luật sinh
                 if all([(is_terminal(c)) or (c in new_v) for c in value]):
                     continue
                 new_grammar[left].remove(value)
@@ -51,26 +54,28 @@ def keep_rule(grammar, new_v):
 
 # Loại bỏ các ký hiệu vô ích
 def remove_useless_sysbols(grammar, start):
+    # Bổ đề 1
     old_v = set()
     new_v = set()
+    # Tìm tập biến trực tiếp sinh ra ký hiệu kết thúc
     for left, right in grammar.items():
         for value in right:
             if all([is_terminal(c) for c in value]):
                 new_v.add(left)
-
-    # Bổ đề 1
+    # Lặp và tìm các biến có thể sinh ra chuỗi kí hiệu kết thúc được suy từ tập new_v
     while old_v != new_v:
         old_v = copy.deepcopy(new_v)
         for left, right in grammar.items():
             for value in right:
                 if all([(is_terminal(c)) or (c in old_v) for c in value]):
                     new_v.add(left)
-
+    # Giữ lại các luật sinh gồm các biến trong new_v
     grammar = keep_rule(grammar, new_v)
 
     # Bổ đề 2
     old_v = set()
-    new_v = {start}
+    new_v = {start} # Khởi tạo với chuỗi bắt đầu
+    # Lặp và tìm các biến có thể được suy ra từ ký biến bắt đầu dựa vào new_v
     while old_v != new_v:
         old_v = copy.deepcopy(new_v)
         for left, right in grammar.items():
@@ -79,7 +84,7 @@ def remove_useless_sysbols(grammar, start):
                     for c in value:
                         if not is_terminal(c):
                             new_v.add(c)
-
+    # Giữ lại các luật sinh gồm các biến trong new_v
     grammar = keep_rule(grammar, new_v)
     return grammar
 
@@ -115,7 +120,7 @@ def remove_epsilon_rule(grammar, start):
         if old_nullable == nullable:
             break
 
-    # Bước 2: Xây dựng tập luật sinh P' - không chứa epsilon
+    # Bước 2: Xây dựng tập luật sinh mới không chứa epsilon
     new_grammar = copy.deepcopy(grammar)
     for left, right in grammar.items():
         for value in right:
@@ -138,20 +143,20 @@ def remove_unit_rule(grammar, start):
 
     # Truy xuất tập detal của từng value trong các delta
     old_deltas = {}
-    while deltas != old_deltas:
+    while deltas != old_deltas: 
         old_deltas = copy.deepcopy(deltas)
         for d, value in copy.deepcopy(deltas).items():
             for c in value:
                 if c != d:
                     deltas[d].update(deltas[c])
 
-    # Thêm các luật sinh dựa vào delta và value
+    # Thêm các luật sinh dựa vào delta và xóa luật sinh đơn vị
     for d, value in deltas.items():
-        # Thêm các luật sinh
+        # Thêm các luật sinh từ các biến trong detal
         for c in value:
             if c != d:
                 grammar[d].update(grammar[c])
-        # Xóa các luật sinh sinh ra các giá trị của detal
+        # Xóa các luật sinh đơn vị
         for c in value:
             if c != d:
                 grammar[d].discard((c,))
@@ -167,8 +172,7 @@ def convert_to_cnf(grammar, start):
     nums_new_symbol = 0
     for left, right in grammar.items():
         for value in right:
-            new_value = value
-            # Nếu chuỗi có 2 ký tự
+            new_value = value # Biến lưu giá trị mới của mỗi value trong right
             if len(value) == 2:
                 # Nếu đầu tiên là terminal thì tạo biến mới
                 if is_terminal(value[0]):
@@ -185,9 +189,12 @@ def convert_to_cnf(grammar, start):
                 while len(new_value) > 2:
                     nums_new_symbol += 1
                     new_symbol = create_new_symbol(nums_new_symbol)
+                    # Tạo luật sinh mới với 2 ký tự đầu tiên của chuỗi
                     new_grammar[new_symbol] = {(new_value[0], new_value[1])}
+                    # Thay thế 2 ký tự đầu tiên của chuỗi bằng biến mới
                     new_value = (new_symbol,) + new_value[2:]
 
+            # Thêm luật sinh mới vào grammar
             if left not in new_grammar:
                 new_grammar[left] = {new_value}
             else:
