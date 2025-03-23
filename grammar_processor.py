@@ -34,7 +34,7 @@ def is_epsilon(c):
     return c[0] == 'epsilon' or c == 'epsilon'
 
 def is_terminal(c):
-    return is_epsilon(c) or (97 <= ord(c) <= 122)
+    return is_epsilon(c[0]) or (97 <= ord(c[0]) <= 122)
 
 # Giữ lại các luật sinh có biến trong new_v
 def keep_rule(grammar, new_v):
@@ -170,35 +170,43 @@ def create_new_symbol(c):
 def convert_to_cnf(grammar, start):
     new_grammar = {}
     nums_new_symbol = 0
-    for left, right in grammar.items():
-        for value in right:
-            new_value = value # Biến lưu giá trị mới của mỗi value trong right
-            if len(value) == 2:
-                # Nếu đầu tiên là terminal thì tạo biến mới
-                if is_terminal(value[0]):
-                    new_symbol = create_new_symbol(value[0])
-                    new_grammar[new_symbol] = {(value[0],)}
-                    new_value = (new_symbol, value[1])
-                # Nếu cuối cùng là terminal thì tạo biến mới
-                if is_terminal(value[1]):
-                    new_symbol = create_new_symbol(value[1])
-                    new_grammar[new_symbol] = {(value[1],)}
-                    new_value = (new_value[0], new_symbol)
+    while True:
+        for left, right in grammar.items():
+            for value in right:
+                new_value = value # Biến lưu giá trị mới của mỗi value trong right
+                if len(value) == 2:
+                    # Nếu đầu tiên là terminal thì tạo biến mới
+                    print(value[0])
+                    if is_terminal(value[0]):
+                        new_symbol = create_new_symbol(value[0])
+                        new_grammar[new_symbol] = {(value[0],)}
+                        new_value = (new_symbol, value[1])
+                    # Nếu cuối cùng là terminal thì tạo biến mới
+                    if is_terminal(value[1]):
+                        new_symbol = create_new_symbol(value[1])
+                        new_grammar[new_symbol] = {(value[1],)}
+                        new_value = (new_value[0], new_symbol)
 
-            if len(value) > 2:
-                while len(new_value) > 2:
-                    nums_new_symbol += 1
-                    new_symbol = create_new_symbol(nums_new_symbol)
-                    # Tạo luật sinh mới với 2 ký tự đầu tiên của chuỗi
-                    new_grammar[new_symbol] = {(new_value[0], new_value[1])}
-                    # Thay thế 2 ký tự đầu tiên của chuỗi bằng biến mới
-                    new_value = (new_symbol,) + new_value[2:]
+                if len(value) > 2:
+                    while len(new_value) > 2:
+                        nums_new_symbol += 1
+                        new_symbol = create_new_symbol(nums_new_symbol)
+                        # Tạo luật sinh mới với 2 ký tự đầu tiên của chuỗi
+                        new_grammar[new_symbol] = {(new_value[0], new_value[1])}
+                        # Thay thế 2 ký tự đầu tiên của chuỗi bằng biến mới
+                        new_value = (new_symbol,) + new_value[2:]
 
-            # Thêm luật sinh mới vào grammar
-            if left not in new_grammar:
-                new_grammar[left] = {new_value}
-            else:
-                new_grammar[left].add(new_value)
+                # Thêm luật sinh mới vào grammar
+                if left not in new_grammar:
+                    new_grammar[left] = {new_value}
+                else:
+                    new_grammar[left].add(new_value)
+
+        if new_grammar == grammar:
+            break
+        else:
+            grammar = copy.deepcopy(new_grammar)
+            new_grammar = {}
 
     return new_grammar
 

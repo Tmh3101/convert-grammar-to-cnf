@@ -16,7 +16,7 @@ class GrammarProcessorGUI:
     def __init__(self, root):
         self.root = root
         self.root.title("Grammar Processor")
-        self.root.geometry("1000x600")
+        self.root.geometry("1200x600")
         
         # Variables
         self.current_file = None
